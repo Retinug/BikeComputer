@@ -1,3 +1,9 @@
 # Compilation files
 Debug/
 Release/
+
+
+*.wdb
+*.wed
+*.dep
+*.pdb
