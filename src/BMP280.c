@@ -36,16 +36,6 @@ int32_t BMP280_ReadTemp()
 	return T;
 }
 
-void BMP280_ReadPress()
-{
-	
-}
-
-void BMP280_ReadAlt()
-{
-	
-}
-
 void BMP280_WriteReg(uint8_t reg, uint8_t value)
 {
 	while(I2C_GetFlagStatus(I2C1, I2C_FLAG_BUSY));

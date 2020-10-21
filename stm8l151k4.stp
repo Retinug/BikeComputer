@@ -73,7 +73,7 @@ Int.108=0
 String.6.0=2020,9,26,21,41,52
 String.100.0=$(TargetFName)
 String.101.0=
-String.103.0=.\;stm8l15x_stdperiph_driver\inc;src;include;
+String.103.0=.\;stm8l15x_stdperiph_driver\inc;src;include;stm8l15x_stdperiph_driver\src;
 
 [Root.Config.0.Settings.2]
 String.2.0=
@@ -155,7 +155,7 @@ Int.108=0
 String.6.0=2020,9,26,21,41,52
 String.100.0=$(TargetFName)
 String.101.0=
-String.103.0=.\;stm8l15x_stdperiph_driver\inc;src;include;
+String.103.0=.\;stm8l15x_stdperiph_driver\inc;src;include;stm8l15x_stdperiph_driver\src;
 
 [Root.Config.1.Settings.2]
 String.2.0=
@@ -301,6 +301,16 @@ Next=Root.Source Files.src\stm8_interrupt_vector.c
 [Root.Source Files.src\stm8_interrupt_vector.c]
 ElemType=File
 PathName=src\stm8_interrupt_vector.c
+Next=Root.Source Files.stm8l15x_stdperiph_driver\src\stm8l15x_clk.c
+
+[Root.Source Files.stm8l15x_stdperiph_driver\src\stm8l15x_clk.c]
+ElemType=File
+PathName=stm8l15x_stdperiph_driver\src\stm8l15x_clk.c
+Next=Root.Source Files.stm8l15x_stdperiph_driver\src\stm8l15x_i2c.c
+
+[Root.Source Files.stm8l15x_stdperiph_driver\src\stm8l15x_i2c.c]
+ElemType=File
+PathName=stm8l15x_stdperiph_driver\src\stm8l15x_i2c.c
 
 [Root.Include Files]
 ElemType=Folder
@@ -378,6 +388,11 @@ String.6.0=2020,9,26,21,41,52
 [Root.Include Files.include\bmp280.h]
 ElemType=File
 PathName=include\bmp280.h
+Next=Root.Include Files.include\main.h
+
+[Root.Include Files.include\main.h]
+ElemType=File
+PathName=include\main.h
 Next=Root.Include Files.stm8l15x_stdperiph_driver\inc\stm8l15x.h
 
 [Root.Include Files.stm8l15x_stdperiph_driver\inc\stm8l15x.h]

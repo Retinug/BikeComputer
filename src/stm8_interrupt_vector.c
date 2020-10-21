@@ -17,6 +17,21 @@ struct interrupt_vector {
 	return;
 }
 
+@far @interrupt void I2C_TRG_IRQHandler (void)
+{
+	int a = 0;
+	a++;
+	return;
+}
+/*
+INTERRUPT_HANDLER(TIM4_UPD_OVF_IRQHandler, 23)
+{
+  TimingDelayDec();
+  TIM4->SR1&=~TIM4_SR1_UIF;
+
+}
+*/
+
 extern void _stext();     /* startup routine */
 
 struct interrupt_vector const _vectab[] = {
