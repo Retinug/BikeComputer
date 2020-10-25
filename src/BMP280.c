@@ -16,9 +16,12 @@ int16_t dig_P7;
 int16_t dig_P8;
 int16_t dig_P9;
 
-void BMP280_Init(I2C_TypeDef* I2Cx)
-{
+void BMP280_Config(uint8_t BMP280_Standby, uint8_t BMP280_Filter, uint8_t BMP280_Sampling_T, uint8_t BMP280_Sampling_P, uint8_t BMP280_Mode)
+{	
+	BMP280_WriteReg(BMP280_REG_CONFIG, (BMP280_Standby << 5) | (BMP280_Filter << 2) | 0);
+	BMP280_WriteReg(BMP280_REG_CONTROL, (BMP280_Sampling_T << 5) | (BMP280_Sampling_P << 2) | BMP280_Mode);
 	
+	BMP280_ReadCalibration();
 }
 
 int32_t BMP280_ReadTemp()

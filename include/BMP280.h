@@ -29,22 +29,8 @@ typedef enum {
   BMP280_REG_CONFIG = 0xF5,
   BMP280_REG_PRESSUREDATA = 0xF7,
   BMP280_REG_TEMPDATA = 0xFA
-	}BMP280_REG_TypeDef;
+} BMP280_REG_TypeDef;
 
-typedef struct {
-	uint16_t dig_T1;
-	int16_t dig_T2;
-	int16_t dig_T3;
-	uint16_t dig_P1;
-	int16_t dig_P2;
-	int16_t dig_P3;
-	int16_t dig_P4;
-	int16_t dig_P5;
-	int16_t dig_P6;
-	int16_t dig_P7;
-	int16_t dig_P8;
-  int16_t dig_P9;
-	} BMP280_CALIB_Data;
 
 typedef enum
 {
@@ -88,7 +74,7 @@ typedef enum
 	BMP280_Standby_MS4000 = (uint8_t)0x07
 } BMP280_Standby;
 
-void BMP280_Init(I2C_TypeDef* I2Cx);
+void BMP280_Config(uint8_t BMP280_Standby, uint8_t BMP280_Filter, uint8_t BMP280_Sampling_T, uint8_t BMP280_Sampling_P, uint8_t BMP280_Mode);
 int32_t BMP280_ReadTemp(void);
 int32_t BMP280_ReadPress(void);
 void BMP280_ReadAlt();
