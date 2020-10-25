@@ -8,16 +8,16 @@
 #define BMP280_ID 0x58
 
 typedef enum {
-  BMP280_REG_DIG_T1 = 0x88,
-  BMP280_REG_DIG_T2 = 0x8A,
-  BMP280_REG_DIG_T3 = 0x8C,
-  BMP280_REG_DIG_P1 = 0x8E,
-  BMP280_REG_DIG_P2 = 0x90,
-  BMP280_REG_DIG_P3 = 0x92,
-  BMP280_REG_DIG_P4 = 0x94,
-  BMP280_REG_DIG_P5 = 0x96,
-  BMP280_REG_DIG_P6 = 0x98,
-  BMP280_REG_DIG_P7 = 0x9A,
+	BMP280_REG_DIG_T1 = 0x88,
+	BMP280_REG_DIG_T2 = 0x8A,
+	BMP280_REG_DIG_T3 = 0x8C,
+	BMP280_REG_DIG_P1 = 0x8E,
+	BMP280_REG_DIG_P2 = 0x90,
+	BMP280_REG_DIG_P3 = 0x92,
+	BMP280_REG_DIG_P4 = 0x94,
+	BMP280_REG_DIG_P5 = 0x96,
+	BMP280_REG_DIG_P6 = 0x98,
+	BMP280_REG_DIG_P7 = 0x9A,
   BMP280_REG_DIG_P8 = 0x9C,
   BMP280_REG_DIG_P9 = 0x9E,
   BMP280_REG_CHIPID = 0xD0,
@@ -29,22 +29,22 @@ typedef enum {
   BMP280_REG_CONFIG = 0xF5,
   BMP280_REG_PRESSUREDATA = 0xF7,
   BMP280_REG_TEMPDATA = 0xFA
-}BMP280_REG_TypeDef;
+	}BMP280_REG_TypeDef;
 
 typedef struct {
-  uint16_t dig_T1;
-  int16_t dig_T2;
-  int16_t dig_T3;
-  uint16_t dig_P1;
-  int16_t dig_P2;
-  int16_t dig_P3;
-  int16_t dig_P4;
-  int16_t dig_P5;
-  int16_t dig_P6;
-  int16_t dig_P7;
-  int16_t dig_P8;
+	uint16_t dig_T1;
+	int16_t dig_T2;
+	int16_t dig_T3;
+	uint16_t dig_P1;
+	int16_t dig_P2;
+	int16_t dig_P3;
+	int16_t dig_P4;
+	int16_t dig_P5;
+	int16_t dig_P6;
+	int16_t dig_P7;
+	int16_t dig_P8;
   int16_t dig_P9;
-} BMP280_CAL_Data;
+	} BMP280_CALIB_Data;
 
 typedef enum
 {
@@ -88,22 +88,9 @@ typedef enum
 	BMP280_Standby_MS4000 = (uint8_t)0x07
 } BMP280_Standby;
 
-
-
-
-/*
-struct struct_meas {
-	uint8_t osrs_t : 3;
-	uint8_t osrs_p : 3;
-	uint8_t mode : 2;
-	//uint8_t get() { return (osrs_t << 5) | (osrs_p << 2) | mode; }
-} meas;
-*/
-//struct_meas meas;
-
 void BMP280_Init(I2C_TypeDef* I2Cx);
 int32_t BMP280_ReadTemp(void);
-void BMP280_ReadPress();
+int32_t BMP280_ReadPress(void);
 void BMP280_ReadAlt();
 
 void BMP280_WriteReg(uint8_t reg, uint8_t value);
