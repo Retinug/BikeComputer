@@ -1,0 +1,57 @@
+#ifndef SH1106_H
+#define SH1106_H
+
+#include "stm8l15x.h"
+#include "stm8l15x_i2c.h"
+
+#define SH1106_ADDRESS 0x3C
+#define SH1106_SETLOWCOLUMN 0x00
+#define SH1106_SETHIGHCOLUMN 0x10
+
+#define SH1106_SETCHARGEPUMP 0x30
+
+#define SH1106_SETSTARTLINE 0x40
+#define SH1106_SETCONTRAST 0x81
+#define SH1106_SETREMAPRIGHT 0xA0
+#define SH1106_SETREMAPLEFT 0xA1
+
+#define SH1106_SETENTIREOFF 0xA4
+#define SH1106_SETENTIREON 0xA5
+
+#define SH1106_SETNORMDISPLAY 0xA6
+#define SH1106_SETREVDISPLAY 0xA7
+#define SH1106_SETMULTRAT 0xA8
+
+#define SH1106_SETCONVERT 0xAD
+#define SH1106_SETCONVERTON 0x8A
+#define SH1106_SETCONVERTOFF 0x8B
+
+#define SH1106_DISPLAYOFF 0xAE
+#define SH1106_DISPLAYON 0xAF
+
+#define SH1106_SETPAGEADDR 0xB0
+
+#define SH1106_COMDIRINC 0xC0
+#define SH1106_COMDIRDEC 0xC8
+
+#define SH1106_SETOFFSET 0xD3
+
+#define SH1106_CLKDIV 0xD5
+#define SH1106_PRECHARGE 0xD9
+
+#define SH1106_SETPAD 0xDA
+
+#define SH1106_SETVCOM 0xDB
+
+
+extern uint8_t buffer[128 * 64 / 8];
+
+void SH1106_Init(void);
+
+void SH1106_SetPixel(int x, int y);
+
+void SH1106_WriteCommand(uint8_t command);
+void SH1106_WriteData(uint8_t data);
+
+ 
+#endif
