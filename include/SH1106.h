@@ -43,15 +43,18 @@
 
 #define SH1106_SETVCOM 0xDB
 
-
-extern uint8_t buffer[128 * 64 / 8];
-
 void SH1106_Init(void);
 
-void SH1106_SetPixel(int x, int y);
+void SH1106_Update(void);
+void SH1106_UpdatePage(uint8_t num);
+
+void SH1106_SetPixel(uint8_t x, uint8_t y);
+void SH1106_DrawLine_Vert(uint8_t y1, uint8_t y2);
+void SH1106_DrawLine_Horiz(uint8_t x1, uint8_t x2);
+void SH1106_DrawNum(uint8_t x, uint8_t y, uint8_t num);
+void SH1106_Clear(void);
 
 void SH1106_WriteCommand(uint8_t command);
 void SH1106_WriteData(uint8_t data);
-
  
 #endif
