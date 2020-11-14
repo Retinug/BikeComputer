@@ -14,8 +14,8 @@ void SH1106_Init()
 	
 	SH1106_WriteCommand(SH1106_SETCHARGEPUMP);      // 0x30
 	
-SH1106_WriteCommand(SH1106_SETSTARTLINE);				// 0x40
-	SH1106_WriteCommand(SH1106_SETREMAPLEFT);				//0xA1
+	SH1106_WriteCommand(SH1106_SETSTARTLINE);				// 0x40
+	SH1106_WriteCommand(SH1106_SETREMAPLEFT);				// 0xA1
 	
 	SH1106_WriteCommand(SH1106_COMDIRDEC);					// 0xC8
 	SH1106_WriteCommand(SH1106_SETPAD); 						// 0xDA
@@ -31,9 +31,51 @@ SH1106_WriteCommand(SH1106_SETSTARTLINE);				// 0x40
 	SH1106_WriteCommand(SH1106_DISPLAYON); 					// 0xAF
 }
 
-void SH1106_SetPixel(int x, int y)
+void SH1106_Update()
 {
+	int i, j;
+	for(i = 0; i < 8; i++)
+	{
+		SH1106_WriteCommand(SH1106_SETPAGEADDR + i);
+		SH1106_WriteCommand(SH1106_SETLOWCOLUMN & 0x0F);
+		SH1106_WriteCommand(SH1106_SETHIGHCOLUMN >> 4);
+		for(j = 0; j < 132; j++)
+		{
+			if(j < 128)
+			{
+				SH1106_WriteData(buffer[i * 128 + j]);
+			}
+			else
+			{
+				SH1106_WriteData(0);
+			}
+		}
+	}
+}
+
+void SH1106_UpdatePage(uint8_t num)
+{
+	uint8_t i;
+	SH1106_WriteCommand(SH1106_SETPAGEADDR + num);
+	SH1106_WriteCommand(SH1106_SETLOWCOLUMN & 0x0F);
+	SH1106_WriteCommand(SH1106_SETHIGHCOLUMN >> 4);
 	
+	for(i = 0; i < 132; i++)
+	{
+		if(i < 128)
+		{
+			SH1106_WriteData(buffer[num * 128 + i]);
+		}
+		else
+		{
+			SH1106_WriteData(0);
+		}
+	}
+}
+
+void SH1106_SetPixel(uint8_t x, uint8_t y)
+{
+	buffer[x + (y / 8) * 128] |= (1 << (y & 7));
 }
 
 void SH1106_WriteCommand(uint8_t command)
