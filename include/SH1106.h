@@ -4,6 +4,8 @@
 #include "stm8l15x.h"
 #include "stm8l15x_i2c.h"
 
+#include "SH1106Font.h"
+
 #define SH1106_ADDRESS 0x3C
 #define SH1106_SETLOWCOLUMN 0x00
 #define SH1106_SETHIGHCOLUMN 0x10
@@ -54,6 +56,7 @@ void SH1106_SetPixel(uint8_t x, uint8_t y);
 void SH1106_DrawLine_Vert(uint8_t x, uint8_t y, uint8_t len);
 void SH1106_DrawLine_Horiz(uint8_t x, uint8_t y, uint8_t len);
 void SH1106_DrawNum(uint8_t x, uint8_t y, uint8_t num);
+void SH1106_DrawScreenLines(void);
 void SH1106_Clear(void);
 
 void SH1106_WriteCommand(uint8_t command);

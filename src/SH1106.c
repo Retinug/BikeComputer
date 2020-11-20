@@ -78,6 +78,32 @@ void SH1106_SetPixel(uint8_t x, uint8_t y)
 	buffer[x + (y / 8) * 128] |= (1 << (y & 7));
 }
 
+void SH1106_DrawLine_Vert(uint8_t x, uint8_t y, uint8_t len)
+{
+	uint8_t i;
+	for(i = 0; i < len; i++)
+	{
+		SH1106_SetPixel(x, y + i);
+	}
+}
+
+void SH1106_DrawLine_Horiz(uint8_t x, uint8_t y, uint8_t len)
+{
+	uint8_t i;
+	for(i = 0; i < len; i++)
+	{
+		SH1106_SetPixel(x + i, y);
+	}
+}
+
+void SH1106_DrawScreenLines(void)
+{
+	SH1106_DrawLine_Horiz(0, 31, 128);
+	SH1106_DrawLine_Horiz(0, 32, 128);
+	SH1106_DrawLine_Vert(63, 0, 64);
+	SH1106_DrawLine_Vert(64, 0, 64);
+}
+
 void SH1106_WriteCommand(uint8_t command)
 {
 	while(I2C_GetFlagStatus(I2C1, I2C_FLAG_BUSY));
