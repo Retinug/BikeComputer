@@ -1,131 +1,119 @@
-#include "stm8l15x.h"
-#include "stm8l15x_clk.h"
-#include "stm8l15x_i2c.h"
-#include "stm8l15x_exti.h"
+#include "main.h"
 
-#include "BMP280.h"
-
-//#define DEBUG
-
-uint8_t TEMPdata1;
-uint8_t TEMPdata2;
-uint8_t TEMPdata3;
-uint8_t TEMPdata4;
-uint8_t TEMPdata5;
-
-uint8_t address1;
-uint8_t address2;
-
-ITStatus status;
-I2C_Event_TypeDef event;
-I2C_FLAG_TypeDef flag;
-
-
+uint8_t x = 0;
 
 void delay(uint32_t time)
 {
 	volatile uint32_t counter = 0;
-	while(counter != 100000)
+	while(counter != time)
 	{
 		counter++;
 	}
-	/*
-	for(counter = 0; counter < time; counter++)
-	{
-		#asm
-		nop
-		#endasm
-	}
-	*/
 }
 
-main()
+@far @interrupt void IRQ_Handler_EXTI_Button_1()
 {
-	uint8_t config = 0;
-	uint8_t meas = 0;
-	int i;
-	volatile uint8_t d, b = 0;
-	volatile temp;
-	I2C_Event_TypeDef event;
-	FlagStatus status;
-	
-	delay(100000);
-	
+	SH1106_SetPixel(x++,20);
+	EXTI_ClearITPendingBit(EXTI_IT_Pin1);
+	return;
+}
+
+@far @interrupt void IRQ_Handler_EXTI_Button_2()
+{
+	SH1106_SetPixel(x++,30);
+	EXTI_ClearITPendingBit(EXTI_IT_Pin2);
+	return;
+}
+
+@far @interrupt void IRQ_Handler_EXTI_Button_3()
+{
+	SH1106_SetPixel(x++,40);
+	EXTI_ClearITPendingBit(EXTI_IT_Pin3);
+	return;
+}
+
+/*
+void INTERRUPT_HANDLER(IRQ_Handler_EXTI_PORT_D, 7)
+{
+	SH1106_SetPixel(0,1);
+	SH1106_Update();
+}
+*/
+
+void Init()
+{
 	CLK_SYSCLKSourceConfig(CLK_SYSCLKSource_HSI);
 	CLK_SYSCLKDivConfig(CLK_SYSCLKDiv_1);
 	
+	GPIO_Init(BUTTON_PORT, GPIO_Pin_1, GPIO_Mode_In_FL_IT);
+	GPIO_Init(BUTTON_PORT, GPIO_Pin_2, GPIO_Mode_In_FL_IT);
+	GPIO_Init(BUTTON_PORT, GPIO_Pin_3, GPIO_Mode_In_FL_IT);
+	
+	EXTI_SetPinSensitivity(EXTI_Pin_1, EXTI_Trigger_Falling);
+	EXTI_SetPinSensitivity(EXTI_Pin_2, EXTI_Trigger_Falling);
+	EXTI_SetPinSensitivity(EXTI_Pin_3, EXTI_Trigger_Falling);
+	
 	CLK_PeripheralClockConfig(CLK_Peripheral_I2C1, ENABLE);
-	I2C_Init(I2C1, I2C_MAX_STANDARD_FREQ, 0x05, I2C_Mode_I2C, I2C_DutyCycle_2, I2C_Ack_Enable, I2C_AcknowledgedAddress_7bit);
-	//I2C_AcknowledgeConfig(I2C1, ENABLE);
-	//I2C_ITConfig(I2C1, I2C_IT_EVT, ENABLE);
+	I2C_Init(I2C1, I2C_MAX_FAST_FREQ, 0x05, I2C_Mode_I2C, I2C_DutyCycle_2, I2C_Ack_Enable, I2C_AcknowledgedAddress_7bit);
 	I2C_Cmd(I2C1, ENABLE);
 
-	//I2C_AcknowledgeConfig(I2C1, DISABLE);
 	I2C_AcknowledgeConfig(I2C1, ENABLE);
-	config = (BMP280_Standby_MS1 << 5) | (BMP280_Filter_x2 << 2) | 0;
-	meas = (BMP280_Sampling_x16 << 5) | (BMP280_Sampling_x16 << 2) | BMP280_Mode_Normal;
 	
+	SH1106_Init();
+	
+	BMP280_Config(BMP280_Standby_MS1, BMP280_Filter_x2, BMP280_Sampling_x16, BMP280_Sampling_x16, BMP280_Mode_Forced);
+}
+
+int main()
+{	
+	int i = 0, j = 0;
+	delay(100000);
+	
+	Init();
+	
+	SH1106_WriteCommand(SH1106_DISPLAYOFF);
+	
+	SH1106_DrawScreenLines();
+	SH1106_Update();
+	SH1106_WriteCommand(SH1106_DISPLAYON);
+	
+	
+	enableInterrupts();
+	
+	BMP280_ReadTemp();
+	BMP280_ReadPress();
 	while (1)
 	{
+		/*
+		if(GPIO_ReadInputDataBit(GPIOD, GPIO_Pin_1))
+		{
+			j = 20;
+		}
+		else if(GPIO_ReadInputDataBit(GPIOD, GPIO_Pin_2))
+		{
+			j = 40;
+		}
+		
+		else if(GPIO_ReadInputDataBit(GPIOD, GPIO_Pin_3))
+		{
+			j = 50;
+		}
+		*/
+		
+		SH1106_SetPixel(i,j);
+		i++;
+
+		//SH1106_WriteCommand(SH1106_DISPLAYOFF);	
+		if(i > 127)
+		{
+			j++;
+			i = 0;
+		}
+		
+		SH1106_Update();
 		delay(500);
 		
-		//meas = (BMP280_Sampling_x16 << 5);// | (BMP280_Sampling_x16 << 2) | 11;
-		BMP280_WriteReg(BMP280_REG_CONTROL, meas);
-		BMP280_WriteReg(BMP280_REG_CONFIG, config);
-		BMP280_ReadCalibration();
-		BMP280_ReadTemp();
-		BMP280_Read_24(BMP280_REG_TEMPDATA);
-		
-		d = BMP280_Read_8(BMP280_REG_CONFIG);
-		b = BMP280_Read_8(BMP280_REG_CONTROL);
 		
 		
-		/*
-		while(I2C_GetFlagStatus(I2C1, I2C_FLAG_BUSY));
-		I2C_GenerateSTART(I2C1, ENABLE);
-		
-		while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
-		I2C_Send7bitAddress(I2C1, BMP280_ADDRESS << 1, I2C_Direction_Transmitter);
-		
-		while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
-		I2C_SendData(I2C1, BMP280_REG_PRESSUREDATA);
-		
-		while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
-		I2C_GenerateSTART(I2C1, ENABLE); ////////////////////////////////////////////////////////////
-		
-		while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
-		I2C_Send7bitAddress(I2C1, BMP280_ADDRESS << 1, I2C_Direction_Receiver);
-		while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED));
-		
-		while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_RECEIVED));
-		I2C_AcknowledgeConfig(I2C1, DISABLE);
-		TEMPdata1 = I2C_ReceiveData(I2C1);
-		
-		I2C_GenerateSTOP(I2C1, ENABLE);
-		TEMPdata2 = I2C_ReceiveData(I2C1);
-		
-		while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_RECEIVED));
-		TEMPdata3 = I2C_ReceiveData(I2C1);
-		I2C_AcknowledgeConfig(I2C1, ENABLE);
-		//////////////
-		while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_RECEIVED));
-		TEMPdata1 = I2C_ReceiveData(I2C1);
-		
-		while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_RECEIVED));
-		TEMPdata2 = I2C_ReceiveData(I2C1);
-		I2C_AckPositionConfig(I2C1, I2C_AckPosition_Next);
-		
-		while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_RECEIVED));
-		TEMPdata3 = I2C_ReceiveData(I2C1);
-		
-		I2C_GenerateSTOP(I2C1, ENABLE);
-		
-		while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_RECEIVED));
-		TEMPdata4 = I2C_ReceiveData(I2C1);
-
-		while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_RECEIVED));
-		TEMPdata5 = I2C_ReceiveData(I2C1);
-		*/
-		//delay(500);
 	}
 }
