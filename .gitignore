@@ -7,3 +7,7 @@ Release/
 *.wed
 *.dep
 *.pdb
+
+checkres.spy
+TAGS.txt
+TAGS_Filelist.txt
