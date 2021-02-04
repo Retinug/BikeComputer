@@ -61,7 +61,7 @@ String.100.2=STM8 Cosmic
 String.100.3=ST7 Metrowerks V1.1
 String.100.4=Raisonance
 String.101.0=STM8 Cosmic
-String.102.0=
+String.102.0=D:\STM8\COSMIC\CXSTM8
 String.103.0=
 String.104.0=Hstm8
 String.105.0=Lib
@@ -73,6 +73,7 @@ Int.108=0
 String.6.0=2020,9,26,21,41,52
 String.100.0=$(TargetFName)
 String.101.0=
+String.102.0=
 String.103.0=.\;stm8l15x_stdperiph_driver\inc;src;include;stm8l15x_stdperiph_driver\src;
 
 [Root.Config.0.Settings.2]
@@ -82,10 +83,10 @@ String.100.0=STM8L151K4
 
 [Root.Config.0.Settings.3]
 String.2.0=Compiling $(InputFile)...
-String.3.0=cxstm8 +mods0 -customDebCompat -customOpt -no +split -customC-pp -customLst -l -dSTM8L15X_MD -iinclude -istm8l15x_stdperiph_driver\inc -i..\..\..\stm8\stm8l15x_stdperiph_driver\inc $(ToolsetIncOpts) -cl$(IntermPath) -co$(IntermPath) $(InputFile)
+String.3.0=cxstm8 +modsl0 -customDebCompat -customOpt -no +split -customC-pp -customLst -l -dSTM8L15X_MD -iinclude -istm8l15x_stdperiph_driver\inc -i..\..\..\stm8\stm8l15x_stdperiph_driver\inc $(ToolsetIncOpts) -cl$(IntermPath) -co$(IntermPath) $(InputFile)
 String.4.0=$(IntermPath)$(InputName).$(ObjectExt)
 String.5.0=$(IntermPath)$(InputName).ls
-String.6.0=2020,10,7,22,26,25
+String.6.0=2021,2,2,0,10,21
 
 [Root.Config.0.Settings.4]
 String.2.0=Assembling $(InputFile)...
@@ -143,7 +144,7 @@ String.100.2=STM8 Cosmic
 String.100.3=ST7 Metrowerks V1.1
 String.100.4=Raisonance
 String.101.0=STM8 Cosmic
-String.102.0=
+String.102.0=D:\STM8\COSMIC\CXSTM8
 String.103.0=
 String.104.0=Hstm8
 String.105.0=Lib
@@ -217,7 +218,7 @@ String.6.0=2020,9,26,21,41,52
 [Root.Source Files]
 ElemType=Folder
 PathName=Source Files
-Child=Root.Source Files.src\bmp280.c
+Child=Root.Source Files.src\sh1106.c
 Next=Root.Include Files
 Config.0=Root.Source Files.Config.0
 Config.1=Root.Source Files.Config.1
@@ -242,10 +243,10 @@ Int.1=0
 
 [Root.Source Files.Config.0.Settings.1]
 String.2.0=Compiling $(InputFile)...
-String.3.0=cxstm8 +mods0 -customDebCompat -customOpt -no +split -customC-pp -customLst -l -dSTM8L15X_MD -iinclude -istm8l15x_stdperiph_driver\inc -i..\..\..\stm8\stm8l15x_stdperiph_driver\inc $(ToolsetIncOpts) -cl$(IntermPath) -co$(IntermPath) $(InputFile)
+String.3.0=cxstm8 +modsl0 -customDebCompat -customOpt -no +split -customC-pp -customLst -l -dSTM8L15X_MD -iinclude -istm8l15x_stdperiph_driver\inc -i..\..\..\stm8\stm8l15x_stdperiph_driver\inc $(ToolsetIncOpts) -cl$(IntermPath) -co$(IntermPath) $(InputFile)
 String.4.0=$(IntermPath)$(InputName).$(ObjectExt)
 String.5.0=$(IntermPath)$(InputName).ls
-String.6.0=2020,10,7,22,26,25
+String.6.0=2021,2,2,0,10,21
 
 [Root.Source Files.Config.0.Settings.2]
 String.2.0=Assembling $(InputFile)...
@@ -288,6 +289,21 @@ String.4.0=
 String.5.0=
 String.6.0=2020,9,26,21,41,52
 
+[Root.Source Files.src\sh1106.c]
+ElemType=File
+PathName=src\sh1106.c
+Next=Root.Source Files.stm8l15x_stdperiph_driver\src\stm8l15x_gpio.c
+
+[Root.Source Files.stm8l15x_stdperiph_driver\src\stm8l15x_gpio.c]
+ElemType=File
+PathName=stm8l15x_stdperiph_driver\src\stm8l15x_gpio.c
+Next=Root.Source Files.stm8l15x_stdperiph_driver\src\stm8l15x_exti.c
+
+[Root.Source Files.stm8l15x_stdperiph_driver\src\stm8l15x_exti.c]
+ElemType=File
+PathName=stm8l15x_stdperiph_driver\src\stm8l15x_exti.c
+Next=Root.Source Files.src\bmp280.c
+
 [Root.Source Files.src\bmp280.c]
 ElemType=File
 PathName=src\bmp280.c
@@ -315,7 +331,7 @@ PathName=stm8l15x_stdperiph_driver\src\stm8l15x_i2c.c
 [Root.Include Files]
 ElemType=Folder
 PathName=Include Files
-Child=Root.Include Files.include\bmp280.h
+Child=Root.Include Files.include\macros.h
 Config.0=Root.Include Files.Config.0
 Config.1=Root.Include Files.Config.1
 
@@ -339,10 +355,10 @@ Int.1=0
 
 [Root.Include Files.Config.0.Settings.1]
 String.2.0=Compiling $(InputFile)...
-String.3.0=cxstm8 +mods0 -customDebCompat -customOpt -no +split -customC-pp -customLst -l -dSTM8L15X_MD -iinclude -istm8l15x_stdperiph_driver\inc -i..\..\..\stm8\stm8l15x_stdperiph_driver\inc $(ToolsetIncOpts) -cl$(IntermPath) -co$(IntermPath) $(InputFile)
+String.3.0=cxstm8 +modsl0 -customDebCompat -customOpt -no +split -customC-pp -customLst -l -dSTM8L15X_MD -iinclude -istm8l15x_stdperiph_driver\inc -i..\..\..\stm8\stm8l15x_stdperiph_driver\inc $(ToolsetIncOpts) -cl$(IntermPath) -co$(IntermPath) $(InputFile)
 String.4.0=$(IntermPath)$(InputName).$(ObjectExt)
 String.5.0=$(IntermPath)$(InputName).ls
-String.6.0=2020,10,7,22,26,25
+String.6.0=2021,2,2,0,10,21
 
 [Root.Include Files.Config.0.Settings.2]
 String.2.0=Assembling $(InputFile)...
@@ -384,6 +400,26 @@ String.3.0=
 String.4.0=
 String.5.0=
 String.6.0=2020,9,26,21,41,52
+
+[Root.Include Files.include\macros.h]
+ElemType=File
+PathName=include\macros.h
+Next=Root.Include Files.include\sh1106.h
+
+[Root.Include Files.include\sh1106.h]
+ElemType=File
+PathName=include\sh1106.h
+Next=Root.Include Files.stm8l15x_stdperiph_driver\inc\stm8l15x_gpio.h
+
+[Root.Include Files.stm8l15x_stdperiph_driver\inc\stm8l15x_gpio.h]
+ElemType=File
+PathName=stm8l15x_stdperiph_driver\inc\stm8l15x_gpio.h
+Next=Root.Include Files.stm8l15x_stdperiph_driver\inc\stm8l15x_exti.h
+
+[Root.Include Files.stm8l15x_stdperiph_driver\inc\stm8l15x_exti.h]
+ElemType=File
+PathName=stm8l15x_stdperiph_driver\inc\stm8l15x_exti.h
+Next=Root.Include Files.include\bmp280.h
 
 [Root.Include Files.include\bmp280.h]
 ElemType=File
