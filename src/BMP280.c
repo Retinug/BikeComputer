@@ -40,7 +40,7 @@ int32_t BMP280_ReadTemp()
 
 int32_t BMP280_ReadPress()
 {
-	volatile float var1, var2, P, adc_P;
+	volatile int32_t var1, var2, P, adc_P;
 	adc_P = BMP280_Read_24(BMP280_REG_PRESSUREDATA);
 
 	var1 = (t_fine / 2.0) - 64000.0;
