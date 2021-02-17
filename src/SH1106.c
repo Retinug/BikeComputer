@@ -135,20 +135,7 @@ void SH1106_Update()
 	int i, j;
 	for(i = 0; i < 8; i++)
 	{
-		SH1106_WriteCommand(SH1106_SETPAGEADDR + i);
-		SH1106_WriteCommand(SH1106_SETLOWCOLUMN & 0x0F);
-		SH1106_WriteCommand(SH1106_SETHIGHCOLUMN >> 4);
-		for(j = 0; j < 132; j++)
-		{
-			if(j < 128)
-			{
-				SH1106_WriteData(buffer[i * 128 + j]);
-			}
-			else
-			{
-				SH1106_WriteData(0);
-			}
-		}
+		SH1106_UpdatePage(i);
 	}
 }
 
@@ -156,20 +143,35 @@ void SH1106_UpdatePage(uint8_t num)
 {
 	uint8_t i;
 	SH1106_WriteCommand(SH1106_SETPAGEADDR + num);
-	SH1106_WriteCommand(SH1106_SETLOWCOLUMN & 0x0F);
-	SH1106_WriteCommand(SH1106_SETHIGHCOLUMN >> 4);
+	SH1106_WriteCommand(SH1106_SETLOWCOLUMN);
+	SH1106_WriteCommand(SH1106_SETHIGHCOLUMN);
+	
+	while(I2C_GetFlagStatus(I2C1, I2C_FLAG_BUSY));
+	I2C_GenerateSTART(I2C1, ENABLE);
+	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
+	I2C_Send7bitAddress(I2C1, SH1106_ADDRESS << 1, I2C_Direction_Transmitter);
+	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
+	I2C_SendData(I2C1, 0x40);
 	
 	for(i = 0; i < 132; i++)
 	{
 		if(i < 128)
 		{
-			SH1106_WriteData(buffer[num * 128 + i]);
+			while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
+			I2C_SendData(I2C1, buffer[num * 128 + i]);
+			
+			while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
 		}
 		else
 		{
-			SH1106_WriteData(0);
+			while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
+			I2C_SendData(I2C1, 0);
+			
+			while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
 		}
 	}
+	
+	I2C_GenerateSTOP(I2C1, ENABLE);
 }
 
 void SH1106_SetPixel(uint8_t x, uint8_t y)
@@ -195,9 +197,17 @@ void SH1106_DrawLine_Horiz(uint8_t x, uint8_t y, uint8_t len)
 	}
 }
 
-void SH1106_DrawNum(uint8_t x, uint8_t y, uint32_t num)
+void SH1106_DrawNum(uint8_t x, uint8_t y, uint32_t num, uint8_t len)
 {
+	uint8_t ch[10] = {'\0'};
+	while(num != 0)
+	{
+		ch[len - 1] = num % 10 + 48;
+		num/=10;
+		len--;
+	}
 	
+	SH1106_DrawString(x, y, ch);
 }
 
 void SH1106_DrawChar(uint8_t x, uint8_t y, char ch)
@@ -252,6 +262,15 @@ void SH1106_DrawScreenLines()
 	SH1106_DrawLine_Vert(SH1106_HEIGHT, 0, SH1106_HEIGHT);
 }
 
+void SH1106_Clear()
+{
+	uint16_t i;
+	for(i = 0; i < (SH1106_WIDTH * SH1106_HEIGHT) / 8; i++)
+	{
+		buffer[i] = 0;
+	}
+}
+
 void SH1106_WriteCommand(uint8_t command)
 {
 	while(I2C_GetFlagStatus(I2C1, I2C_FLAG_BUSY));
@@ -266,26 +285,6 @@ void SH1106_WriteCommand(uint8_t command)
 	
 	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
 	I2C_SendData(I2C1, command);
-	
-	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
-	
-	I2C_GenerateSTOP(I2C1, ENABLE);
-}
-
-void SH1106_WriteData(uint8_t data)
-{
-	while(I2C_GetFlagStatus(I2C1, I2C_FLAG_BUSY));
-		
-	I2C_GenerateSTART(I2C1, ENABLE);
-	
-	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
-	I2C_Send7bitAddress(I2C1, SH1106_ADDRESS << 1, I2C_Direction_Transmitter);
-	
-	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
-	I2C_SendData(I2C1, 0x40);
-	
-	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
-	I2C_SendData(I2C1, data);
 	
 	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
 	
