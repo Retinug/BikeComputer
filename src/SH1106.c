@@ -1,6 +1,6 @@
 #include "SH1106.h"
 
-uint8_t buffer[128 * 64 / 8];
+uint8_t buffer[SH1106_WIDTH * SH1106_HEIGHT / 8];
 
 const uint8_t font[] = {
 	0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // Code for char  
@@ -155,10 +155,10 @@ void SH1106_UpdatePage(uint8_t num)
 	
 	for(i = 0; i < 132; i++)
 	{
-		if(i < 128)
+		if(i < SH1106_WIDTH)
 		{
 			while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
-			I2C_SendData(I2C1, buffer[num * 128 + i]);
+			I2C_SendData(I2C1, buffer[num * SH1106_WIDTH + i]);
 			
 			while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
 		}
@@ -176,7 +176,7 @@ void SH1106_UpdatePage(uint8_t num)
 
 void SH1106_SetPixel(uint8_t x, uint8_t y)
 {
-	buffer[x + (y / 8) * 128] |= (1 << (y & 7));
+	buffer[x + (y / 8) * SH1106_WIDTH] |= (1 << (y & 7));
 }
 
 void SH1106_DrawLine_Vert(uint8_t x, uint8_t y, uint8_t len)
@@ -197,15 +197,51 @@ void SH1106_DrawLine_Horiz(uint8_t x, uint8_t y, uint8_t len)
 	}
 }
 
-void SH1106_DrawNum(uint8_t x, uint8_t y, uint32_t num, uint8_t len)
+void SH1106_DrawNum(uint8_t x, uint8_t y, int16_t num, uint8_t precision)
 {
-	uint8_t ch[10] = {'\0'};
-	while(num != 0)
+	uint8_t ch[10] = {' '};
+	int16_t numCount = num;
+	uint8_t i = 0;
+	bool isInt = TRUE;
+	
+	uint8_t len = 0;
+	
+	do
 	{
-		ch[len - 1] = num % 10 + 48;
-		num/=10;
-		len--;
+		len++;
+		numCount /= 10;
+	}while(numCount);
+	
+	if(precision > 0)
+	{
+		len++;
+		isInt = FALSE;
 	}
+	
+	if(num < 0)
+	{
+		ch[0] = '-';
+		num = -num;
+		if(precision > 0) precision++;
+		len++;
+	}
+	
+	len--;
+	
+	do
+	{
+		if(!isInt && len - i == precision)
+		{
+			ch[len - i] = '.';
+			i++;
+		}
+		else
+		{
+			ch[len - i] = num % 10 + 48;
+			num /= 10;
+			i++;
+		}
+	}while(num);
 	
 	SH1106_DrawString(x, y, ch);
 }

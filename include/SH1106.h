@@ -61,7 +61,7 @@ void SH1106_UpdatePageDMA(uint8_t num);
 void SH1106_SetPixel(uint8_t x, uint8_t y);
 void SH1106_DrawLine_Vert(uint8_t x, uint8_t y, uint8_t len);
 void SH1106_DrawLine_Horiz(uint8_t x, uint8_t y, uint8_t len);
-void SH1106_DrawNum(uint8_t x, uint8_t y, uint32_t num, uint8_t len);
+void SH1106_DrawNum(uint8_t x, uint8_t y, int16_t num, uint8_t precision);
 void SH1106_DrawChar(uint8_t x, uint8_t y, char ch);
 void SH1106_DrawString(uint8_t x, uint8_t y, char* str);
 void SH1106_DrawScreenLines(void);
@@ -69,6 +69,5 @@ void SH1106_Clear(void);
 
 void SH1106_Write(uint8_t command, uint8_t data);
 void SH1106_WriteCommand(uint8_t command);
-//void SH1106_WriteData(uint8_t data);
 
 #endif
