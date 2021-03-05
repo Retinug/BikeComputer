@@ -35,10 +35,10 @@ struct interrupt_vector const _vectab[] = {
 	{0x82, IRQ_Handler_EXTI_Button_1}, /* irq9  */
 	{0x82, IRQ_Handler_EXTI_Button_2}, /* irq10 */
 	{0x82, IRQ_Handler_EXTI_Button_3}, /* irq11 */
-	{0x82, NonHandledInterrupt}, /* irq12 */
+	{0x82, IRQ_Handler_EXTI_Reed_Wheel}, /* irq12 */
 	{0x82, NonHandledInterrupt}, /* irq13 */
 	{0x82, NonHandledInterrupt}, /* irq14 */
-	{0x82, NonHandledInterrupt}, /* irq15 */
+	{0x82, IRQ_Handler_EXTI_Reed_Pedal}, /* irq15 */
 	{0x82, NonHandledInterrupt}, /* irq16 */
 	{0x82, NonHandledInterrupt}, /* irq17 */
 	{0x82, NonHandledInterrupt}, /* irq18 */
@@ -48,7 +48,7 @@ struct interrupt_vector const _vectab[] = {
 	{0x82, NonHandledInterrupt}, /* irq22 */
 	{0x82, NonHandledInterrupt}, /* irq23 */
 	{0x82, NonHandledInterrupt}, /* irq24 */
-	{0x82, NonHandledInterrupt}, /* irq25 */
+	{0x82, IRQ_Handler_EXTI_Tim4_Ovf}, /* irq25 */
 	{0x82, NonHandledInterrupt}, /* irq26 */
 	{0x82, NonHandledInterrupt}, /* irq27 */
 	{0x82, NonHandledInterrupt}, /* irq28 */
