@@ -49,6 +49,18 @@
 
 #define SH1106_SETVCOM 0xDB
 
+#define FONT_WIDTH 8
+#define FONT_HEIGHT 16
+
+typedef enum
+{
+	SH1106_ALIGN_LEFT = (uint8_t)0x00,
+	SH1106_ALIGN_CENTER = (uint8_t)0x01,
+	SH1106_ALIGN_RIGHT = (uint8_t)0x02
+
+} SH1106_ALIGN;
+
+
 extern uint8_t buffer[SH1106_WIDTH * SH1106_HEIGHT / 8];
 extern const uint8_t font[];
 
@@ -56,7 +68,6 @@ void SH1106_Init(void);
 
 void SH1106_Update(void);
 void SH1106_UpdatePage(uint8_t num);
-void SH1106_UpdatePageDMA(uint8_t num);
 
 void SH1106_SetPixel(uint8_t x, uint8_t y);
 void SH1106_DrawLine_Vert(uint8_t x, uint8_t y, uint8_t len);
@@ -64,7 +75,7 @@ void SH1106_DrawLine_Horiz(uint8_t x, uint8_t y, uint8_t len);
 void SH1106_DrawNum(uint8_t x, uint8_t y, int16_t num, uint8_t precision);
 void SH1106_DrawChar(uint8_t x, uint8_t y, char ch);
 void SH1106_DrawString(uint8_t x, uint8_t y, char* str);
-void SH1106_DrawScreenLines(void);
+void SH1106_DrawStringAlign(uint8_t x, uint8_t y, char* str, uint8_t len, SH1106_ALIGN align);
 void SH1106_Clear(void);
 
 void SH1106_Write(uint8_t command, uint8_t data);

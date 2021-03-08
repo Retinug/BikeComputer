@@ -290,12 +290,30 @@ void SH1106_DrawString(uint8_t x, uint8_t y, char* str)
 	}
 }
 
-void SH1106_DrawScreenLines()
+void SH1106_DrawStringAlign(uint8_t x, uint8_t y, char* str, uint8_t len, SH1106_ALIGN align)
 {
-	SH1106_DrawLine_Horiz(0, SH1106_HEIGHT / 2 - 1, SH1106_WIDTH);
-	SH1106_DrawLine_Horiz(0, SH1106_HEIGHT / 2, SH1106_WIDTH);
-	SH1106_DrawLine_Vert(SH1106_HEIGHT - 1, 0, SH1106_HEIGHT);
-	SH1106_DrawLine_Vert(SH1106_HEIGHT, 0, SH1106_HEIGHT);
+	uint8_t size, offset;
+	if(align == SH1106_ALIGN_LEFT)
+	{
+		SH1106_DrawString(x, y, str);
+	}
+	else
+	{
+		while(str[++size] != '\0');
+		size = size * FONT_WIDTH;
+		//size = (sizeof(str) - 1) * FONT_WIDTH;
+		
+		if(align == SH1106_ALIGN_CENTER)
+		{
+			offset = len / 2 - size / 2;
+			SH1106_DrawString(offset, y, str);
+		}
+		else
+		{
+			offset = len - size;
+			SH1106_DrawString(offset, y, str);
+		}
+	}
 }
 
 void SH1106_Clear()
