@@ -3,6 +3,7 @@
 
 #include "stm8l15x.h"
 #include "stm8l15x_i2c.h"
+#include <math.h>
 
 #define BMP280_ADDRESS 0x76
 #define BMP280_ID 0x58
@@ -77,7 +78,7 @@ typedef enum
 void BMP280_Config(uint8_t BMP280_Standby, uint8_t BMP280_Filter, uint8_t BMP280_Sampling_T, uint8_t BMP280_Sampling_P, uint8_t BMP280_Mode);
 int32_t BMP280_ReadTemp(void);
 int32_t BMP280_ReadPress(void);
-void BMP280_ReadAlt();
+int32_t BMP280_ReadAlt(int32_t zeroLevel);
 
 void BMP280_WriteReg(uint8_t reg, uint8_t value);
 uint8_t BMP280_Read_8(uint8_t reg);

@@ -59,6 +59,18 @@ int32_t BMP280_ReadPress()
 	return P;
 }
 
+int32_t BMP280_ReadAlt(int32_t zeroLevel)
+{
+	float altitude;
+	volatile float zero = zeroLevel / 100.0;
+  float pressure = BMP280_ReadPress();
+  pressure /= 100.0;
+
+  altitude = 44330 * (1.0 - pow(pressure / zero, 0.1903));
+	altitude *= 100;
+  return (uint32_t)(altitude * 100.0);
+}
+
 void BMP280_WriteReg(uint8_t reg, uint8_t value)
 {
 	while(I2C_GetFlagStatus(I2C1, I2C_FLAG_BUSY));
