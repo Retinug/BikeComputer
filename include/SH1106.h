@@ -5,7 +5,6 @@
 #include "stm8l15x_i2c.h"
 
 #include "macros.h"
-#include "SH1106Font.h"
 
 #define SH1106_WIDTH 128
 #define SH1106_HEIGHT 64

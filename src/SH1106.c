@@ -292,7 +292,7 @@ void SH1106_DrawString(uint8_t x, uint8_t y, char* str)
 
 void SH1106_DrawStringAlign(uint8_t x, uint8_t y, char* str, uint8_t len, SH1106_ALIGN align)
 {
-	uint8_t size, offset;
+	uint8_t size = 0, offset = 0;
 	if(align == SH1106_ALIGN_LEFT)
 	{
 		SH1106_DrawString(x, y, str);
@@ -301,11 +301,10 @@ void SH1106_DrawStringAlign(uint8_t x, uint8_t y, char* str, uint8_t len, SH1106
 	{
 		while(str[++size] != '\0');
 		size = size * FONT_WIDTH;
-		//size = (sizeof(str) - 1) * FONT_WIDTH;
 		
 		if(align == SH1106_ALIGN_CENTER)
 		{
-			offset = len / 2 - size / 2;
+			offset = len / 2 - size / 2 + x;
 			SH1106_DrawString(offset, y, str);
 		}
 		else
