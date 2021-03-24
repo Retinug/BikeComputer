@@ -3,6 +3,22 @@
 
 #include "SH1106.h"
 
-void MENU_DrawScreenLines(void);
+typedef enum
+{
+	MENU_STATUS_OFF = 0,
+	MENU_STATUS_MAIN,
+	MENU_STATUS_ADDITIONAL1,
+	MENU_STATUS_ADDITIONAL2,
+	MENU_STATUS_SETTINGS_MAIN,
+	MENU_STATUS_SETTINGS_DIAMETER,
+	MENU_STATUS_SETTINGS_ETRTO,
+	MENU_STATUS_SETTINGS_CADENCE,
+	MENU_STATUS_SETTINGS_TIME,
+	MENU_STATUS_SETTINGS_RESET
+} MENU_STATUS;
 
+extern MENU_STATUS screenStatus;
+
+void MENU_DrawScreenLines(void);
+void MENU_DrawScreenText(char* str1, char* str2, char* str3, char* str4);
 #endif
