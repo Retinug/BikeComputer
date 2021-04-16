@@ -6,11 +6,13 @@
 #include "stm8l15x_i2c.h"
 #include "stm8l15x_exti.h"
 #include "stm8l15x_gpio.h"
+#include "stm8l15x_tim4.h"
 
 #include "BMP280.h"
 #include "SH1106.h"
 
-#define BUTTON_PORT GPIOD
+#include "menu.h"
+
 #define BUTTON_PIN1 1
 #define BUTTON_PIN2 2
 #define BUTTON_PIN3 3
@@ -26,4 +28,10 @@ void Init(void);
 @far @interrupt void IRQ_Handler_EXTI_Button_2(void);
 @far @interrupt void IRQ_Handler_EXTI_Button_3(void);
 
+@far @interrupt void IRQ_Handler_EXTI_Reed_Wheel(void);
+@far @interrupt void IRQ_Handler_EXTI_Reed_Pedal(void);
+
+@far @interrupt void IRQ_Handler_EXTI_Tim4_Ovf(void);
+
+void Update(void);
 #endif
