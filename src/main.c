@@ -1,6 +1,7 @@
 #include "main.h"
 
-uint8_t count = 0;
+BUTTON_STATUS buttonPress = BUTTON_NONE;
+uint8_t countTimer = 0;
 bool needUpdate = FALSE;
 uint16_t wheel = 0, pedal = 0;
 volatile int16_t alt = 0;
@@ -9,24 +10,29 @@ uint32_t zeroPres = 0;
 
 @far @interrupt void IRQ_Handler_EXTI_Button_1()
 {
-	if(screenStatus == MENU_STATUS_OFF) screenStatus = MENU_STATUS_MAIN;
-	screenStatus--;
-	if(screenStatus < 1) screenStatus = MENU_STATUS_ADDITIONAL2;
-	needUpdate = TRUE;
+	buttonPress = BUTTON_PREV;
+	//if(screenStatus == MENU_STATUS_OFF) screenStatus = MENU_STATUS_MAIN;
+	//screenStatus--;
+	//if(screenStatus < 1) screenStatus = MENU_STATUS_ADDITIONAL2;
+	//needUpdate = TRUE;
 	EXTI_ClearITPendingBit(EXTI_IT_Pin1);
 }
 
 @far @interrupt void IRQ_Handler_EXTI_Button_2()
 {
+	buttonPress = BUTTON_CENTER;
+	//screenStatus = MENU_STATUS_SETTINGS_MAIN;
+	//needUpdate = TRUE;
 	EXTI_ClearITPendingBit(EXTI_IT_Pin2);
 }
 
 @far @interrupt void IRQ_Handler_EXTI_Button_3()
 {
-	if(screenStatus == MENU_STATUS_OFF) screenStatus = MENU_STATUS_MAIN;
-	screenStatus++;
-	if(screenStatus > 3) screenStatus = MENU_STATUS_MAIN;
-	needUpdate = TRUE;
+	buttonPress = BUTTON_NEXT;
+	//if(screenStatus == MENU_STATUS_OFF) screenStatus = MENU_STATUS_MAIN;
+	//screenStatus++;
+	//if(screenStatus > 3) screenStatus = MENU_STATUS_MAIN;
+	//needUpdate = TRUE;
 	EXTI_ClearITPendingBit(EXTI_IT_Pin3);
 }
 
@@ -46,13 +52,14 @@ uint32_t zeroPres = 0;
 
 @far @interrupt void IRQ_Handler_EXTI_Tim4_Ovf()
 {
-	if(count == 1)
+	if(countTimer == COUNT_OVF)
 	{
+		needUpdate = TRUE;
 		TIM4_Cmd(DISABLE);
 	}
 	else
 	{
-		count++;
+		countTimer++;
 	}
 	TIM4_ClearITPendingBit(TIM4_IT_Update);
 }
@@ -92,50 +99,12 @@ void Init()
 	BMP280_Config(BMP280_Standby_MS1, BMP280_Filter_x2, BMP280_Sampling_x2, BMP280_Sampling_x16, BMP280_Mode_Forced);
 	BMP280_ReadTemp();
 	zeroPres = BMP280_ReadPress();
+	needUpdate = TRUE;
 }
 
 void Update()
 {
-	switch(screenStatus)
-	{
-		case MENU_STATUS_OFF:
-			break;
-			
-		case MENU_STATUS_MAIN:
-			MENU_DrawScreenText("CAD", "SPD", "DIST", "R TIME");
-			MENU_DrawScreenData(wheel, pedal, &wheel, &wheel);
-			break;
-			
-		case MENU_STATUS_ADDITIONAL1:
-			MENU_DrawScreenText("ODO", "ATIME", "ALT", "TEMP");
-			//SH1106_DrawStringAlign(0, 31, "Add1", 128, SH1106_ALIGN_CENTER);
-			//SH1106_DrawNum(20, 48, alt, 0);
-			//SH1106_DrawNum(20, 16, temp, 2);
-			break;
-			
-		case MENU_STATUS_ADDITIONAL2:
-			MENU_DrawScreenText("MAX", "TIME", "AVG", " ");
-			//SH1106_DrawStringAlign(0, 31, "Add2", 128, SH1106_ALIGN_CENTER);
-			break;
-			
-		case MENU_STATUS_SETTINGS_MAIN:
-			break;
-			
-		case MENU_STATUS_SETTINGS_DIAMETER:
-			break;
-			
-		case MENU_STATUS_SETTINGS_ETRTO:
-			break;
-			
-		case MENU_STATUS_SETTINGS_CADENCE:
-			break;
-			
-		case MENU_STATUS_SETTINGS_TIME:
-			break;
-			
-		case MENU_STATUS_SETTINGS_RESET:
-			break;
-	}
+	MENU_Change(screenStatus, settingSelected);
 	SH1106_Update();
 	SH1106_Clear();
 }
@@ -153,18 +122,135 @@ int main()
 	enableInterrupts();
 
 	screenStatus = MENU_STATUS_MAIN;
-	
+	Update();
 	while (1)
 	{
-		if(needUpdate == TRUE)
+		//MENU_Change(
+		if(buttonPress)
 		{
+			switch(screenStatus)
+			{
+				case MENU_STATUS_OFF:
+					screenStatus = MENU_STATUS_MAIN;
+					break;
+			
+				case MENU_STATUS_MAIN:
+					switch(buttonPress)
+					{
+						case BUTTON_PREV:
+							screenStatus = MENU_STATUS_ADDITIONAL2;
+						break;
+						
+						case BUTTON_NEXT:
+							screenStatus = MENU_STATUS_ADDITIONAL1;
+						break;
+						
+						case BUTTON_CENTER:
+							screenStatus = MENU_STATUS_SETTINGS_MAIN;
+						break;
+					}
+					
+					break;
+					
+				case MENU_STATUS_ADDITIONAL1:
+					switch(buttonPress)
+					{
+						case BUTTON_PREV:
+							screenStatus = MENU_STATUS_MAIN;
+						break;
+						
+						case BUTTON_NEXT:
+							screenStatus = MENU_STATUS_ADDITIONAL2;
+						break;
+						
+						case BUTTON_CENTER:
+							screenStatus = MENU_STATUS_SETTINGS_MAIN;
+						break;
+					}
+					
+					break;
+					
+				case MENU_STATUS_ADDITIONAL2:
+					switch(buttonPress)
+					{
+						case BUTTON_PREV:
+							screenStatus = MENU_STATUS_ADDITIONAL1;
+						break;
+						
+						case BUTTON_NEXT:
+							screenStatus = MENU_STATUS_MAIN;
+						break;
+						
+						case BUTTON_CENTER:
+							screenStatus = MENU_STATUS_SETTINGS_MAIN;
+						break;
+					}
+					
+					break;
+					
+				case MENU_STATUS_SETTINGS_MAIN:
+					if(settingSelected == SETTING_NONE) settingSelected = SETTING_DIAMETER;
+				
+					switch(buttonPress)
+					{
+						case BUTTON_PREV:
+							if(settingSelected == SETTING_DIAMETER) settingSelected = SETTING_EXIT;
+							else settingSelected--;
+							break;
+							
+						break;
+						
+						case BUTTON_NEXT:
+							if(settingSelected == SETTING_EXIT) settingSelected = SETTING_DIAMETER;
+							else settingSelected++;
+						break;
+						
+						case BUTTON_CENTER:
+							switch(settingSelected)
+							{
+								case SETTING_DIAMETER:
+								break;
+								case SETTING_CADENCE:
+								break;
+								case SETTING_TIME:
+								break;
+								case SETTING_RESET:
+								break;
+								case SETTING_EXIT:
+								break;
+
+							}
+							
+						break;
+					}
+					
+					break;
+					
+				case MENU_STATUS_SETTINGS_DIAMETER:
+					break;
+					
+				case MENU_STATUS_SETTINGS_ETRTO:
+					break;
+					
+				case MENU_STATUS_SETTINGS_CADENCE:
+					break;
+					
+				case MENU_STATUS_SETTINGS_TIME:
+					break;
+					
+				case MENU_STATUS_SETTINGS_RESET:
+					break;
+			}
+			buttonPress = BUTTON_NONE;
+			
 			Update();
 			needUpdate = FALSE;
 		}
-		if(count == 1)
-			BMP280_Config(BMP280_Standby_MS1, BMP280_Filter_x2, BMP280_Sampling_x2, BMP280_Sampling_x16, BMP280_Mode_Forced);
+		
+		if(countTimer == COUNT_OVF) 
 		{
-			count = 0;
+			BMP280_Config(BMP280_Standby_MS1, BMP280_Filter_x2, BMP280_Sampling_x2, BMP280_Sampling_x16, BMP280_Mode_Forced);
+			countTimer = 0;
 			temp = (int16_t)BMP280_ReadTemp();
 			alt = (int16_t)BMP280_ReadAlt(zeroPres);
 			
