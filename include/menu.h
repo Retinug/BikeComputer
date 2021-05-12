@@ -20,13 +20,11 @@ typedef enum
 
 typedef enum
 {
-	//SETTING_NONE = 0,
 	SETTING_DIAMETER = 0,
 	SETTING_CADENCE,
 	SETTING_TIME,
 	SETTING_RESET,
 	SETTING_EXIT
-	//SETTING_END
 } SETTING_STATUS;
 
 extern MENU_STATUS screenStatus;
@@ -34,7 +32,7 @@ extern SETTING_STATUS settingSelected;
 
 void MENU_Change(MENU_STATUS newMenu, SETTING_STATUS newSetting, DATA_USER* user);
 void MENU_DrawScreenLines(void);
-void MENU_DrawScreenText(char* str1, char* str2, char* str3, char* str4);
+void MENU_DrawScreenText(uint8_t count, char* str[]);
 void MENU_DrawScreenData(uint16_t data1, uint8_t p1, uint16_t data2, uint8_t p2, uint16_t data3, uint8_t p3, uint16_t data4, uint8_t p4);
 void MENU_DrawScreenSettings(int8_t num);
 #endif
