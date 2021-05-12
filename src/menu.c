@@ -3,10 +3,10 @@
 const char *settingMenu[] = {"Diameter", "Cadence", "Time", "Reset", "Exit"};
 
 MENU_STATUS screenStatus = MENU_STATUS_OFF;
-SETTING_STATUS settingSelected = 0;
-uint8_t selectY;
+SETTING_STATUS settingSelected = SETTING_DIAMETER;
+uint8_t offset = 0;
 
-void MENU_Change(MENU_STATUS newMenu, SETTING_STATUS newSetting)
+void MENU_Change(MENU_STATUS newMenu, SETTING_STATUS newSetting, DATA_USER* user)
 {
 	switch(screenStatus)
 	{
@@ -15,12 +15,12 @@ void MENU_Change(MENU_STATUS newMenu, SETTING_STATUS newSetting)
 			
 		case MENU_STATUS_MAIN:
 			MENU_DrawScreenText("CAD", "SPD", "DIST", "R TIME");
-			//MENU_DrawScreenData(wheel, 0, pedal, 0, wheel, 0, wheel, 0);
+			MENU_DrawScreenData(user->wheel, 0, user->pedal, 0, user->wheel, 0, user->wheel, 0);
 			break;
 			
 		case MENU_STATUS_ADDITIONAL1:
 			MENU_DrawScreenText("ODO", "ATIME", "ALT", "TEMP");
-			//MENU_DrawScreenData(1, 0, 2, 0, 3, 0, temp, 2);
+			MENU_DrawScreenData(1, 0, 2, 0, 3, 0, user->temp, 2);
 			//SH1106_DrawStringAlign(0, 31, "Add1", 128, SH1106_ALIGN_CENTER);
 			//SH1106_DrawNum(20, 48, alt, 0);
 			//SH1106_DrawNum(20, 16, temp, 2);
@@ -32,7 +32,7 @@ void MENU_Change(MENU_STATUS newMenu, SETTING_STATUS newSetting)
 			break;
 			
 		case MENU_STATUS_SETTINGS_MAIN:
-			MENU_DrawScreenSettings((uint8_t)newSetting);
+			MENU_DrawScreenSettings(newSetting);
 			break;
 			
 		case MENU_STATUS_SETTINGS_DIAMETER:
@@ -83,13 +83,16 @@ void MENU_DrawScreenData(uint16_t data1, uint8_t p1, uint16_t data2, uint8_t p2,
 	//SH1106_DrawStringAlign(SH1106_WIDTH / 2, SH1106_HEIGHT / 2 + 48, str4, SH1106_WIDTH / 2, SH1106_ALIGN_CENTER);
 }
 
-void MENU_DrawScreenSettings(uint8_t num)
+void MENU_DrawScreenSettings(int8_t num)
 {
-	selectY = num * FONT_HEIGHT - FONT_HEIGHT;
-	SH1106_DrawChar(2, selectY, '>');
-	SH1106_DrawString(10, 0, settingMenu[0]);
-	SH1106_DrawString(10, 16, settingMenu[1]);
-	SH1106_DrawString(10, 32, settingMenu[2]);
-	SH1106_DrawString(10, 48, settingMenu[3]);
-	SH1106_DrawString(10, 64, settingMenu[4]);
+	uint8_t i, selectY;
+	volatile uint8_t a = num;
+	if(offset == 0 && num > 3) offset++;
+	if(offset != 0 && num < 1) offset--;
+	selectY = (num - offset) * FONT_HEIGHT;
+	SH1106_DrawChar(2, selectY , '>');
+	for(i = 0; i < 4; i++)
+	{
+		SH1106_DrawString(10, i*16, settingMenu[i+offset]);
+	}
 }
