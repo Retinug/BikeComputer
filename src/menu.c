@@ -1,15 +1,22 @@
 #include "menu.h"
 
-const char *settingMenu[] = {"Diameter", "Cadence", "Time", "Reset", "Exit"};
+//const char *settingMenu[] = {"Diameter", "Cadence", "Time", "Reset", "Exit"};
+
+const SETTING_STRUCT settingMenu = {6, "Settings", {"Diameter", "ETRTO", "Cadence", "Time", "Reset", "Exit"}};
+//const SETTING_STRUCT diameterMenu = {3, "Diameter", {"Standart", "ERTO", "Exit"}};
 
 const char *textMain[] = {"CAD", "SPD", "DIST", "R TIME"};
 const char *textAdd1[] = {"ODO", "ATIME", "ALT", "TEMP"};
 const char *textAdd2[] = {"MAX", "TIME", "AVG"};
 
 MENU_STATUS screenStatus = MENU_STATUS_OFF;
-//MENU_STATUS_SETTINGS screenStatus = MENU_STATUS_OFF;
+MENU_STATUS screenStatusLast = MENU_STATUS_OFF;
 SETTING_STATUS settingSelected = SETTING_DIAMETER;
 uint8_t offset = 0;
+int8_t prevNum = -1;
+bool direct;
+bool last;
+bool first;
 
 void MENU_Change(MENU_STATUS newMenu, SETTING_STATUS newSetting, DATA_USER* user)
 {
@@ -40,10 +47,16 @@ void MENU_Change(MENU_STATUS newMenu, SETTING_STATUS newSetting, DATA_USER* user
 			break;
 		
 		case MENU_STATUS_SETTINGS_MAIN:
-			MENU_DrawScreenSettings(newSetting);
+			MENU_DrawScreenSettings(&settingMenu, newSetting);
 			break;
 			
 		case MENU_STATUS_SETTINGS_DIAMETER:
+			//MENU_DrawScreenSettings(&diameterMenu, newSetting);
+			//SH1106_DrawStringAlignBox(0, 20, "Diameter", 128, SH1106_ALIGN_CENTER);
+			//SH1106_DrawStringAlignBox(0, 40, "ETRTO", 128, SH1106_ALIGN_CENTER);
+			//SH1106_DrawString(32, 20, "Diameter");
+			//MENU_DrawBox(30, 18, 80, 38);
+			//MENU_DrawBox(30, 39, 80, 58);
 			break;
 			
 		case MENU_STATUS_SETTINGS_ETRTO:
@@ -88,17 +101,29 @@ void MENU_DrawScreenData(uint16_t data1, uint8_t p1, uint16_t data2, uint8_t p2,
 	SH1106_DrawNum(64, 48, data4, SH1106_WIDTH / 2, p4, SH1106_ALIGN_CENTER);
 }
 
-void MENU_DrawScreenSettings(int8_t num)
+void MENU_DrawScreenSettings(SETTING_STRUCT* menu, int8_t num)
 {
-	uint8_t i, selected;
-	volatile uint8_t a = num;
-	if(offset == 0 && num > 3) offset++;
-	if(offset != 0 && num < 1) offset--;
-	selected = (num - offset);// * FONT_HEIGHT;
-	SH1106_DrawChar(2, selected * FONT_HEIGHT , '>');
-	for(i = 0; i < 4; i++)
+	uint8_t i;
+	int8_t select;
+	if(prevNum == -1)
+		prevNum = 0;
+		
+	if(prevNum == 0 && num == menu->len - 1) //start - end
+		offset = menu->len - 3;
+	else if(prevNum == menu->len - 1 && num == 0) //end - start
+		offset = 0;
+	else if(prevNum < num && num - offset > 2) //to end
+		offset++;
+	else if(prevNum > num && num - offset < 0) //to start
+		offset--;
+	select = num - offset;
+	
+	SH1106_DrawStringAlign(0, 0, menu->label, SH1106_WIDTH, SH1106_ALIGN_CENTER);
+	SH1106_DrawChar(2, select * FONT_HEIGHT + FONT_HEIGHT , '>');
+	for(i = 0; i < 3; i++)
 	{
-		SH1106_DrawString(10, i*16, settingMenu[i+offset]);
+		SH1106_DrawString(10, i * FONT_HEIGHT + FONT_HEIGHT, menu->name[i+offset]);
 	}
-	//screenStatus = selected;
+	prevNum = num;
 }
+
