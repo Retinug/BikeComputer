@@ -21,6 +21,7 @@ typedef enum
 typedef enum
 {
 	SETTING_DIAMETER = 0,
+	SETTING_Tire,
 	SETTING_ETRTO,
 	SETTING_CADENCE,
 	SETTING_TIME,
@@ -39,13 +40,14 @@ typedef struct
 extern MENU_STATUS screenStatus;
 extern MENU_STATUS screenStatusLast;
 extern SETTING_STATUS settingSelected;
+extern int8_t selectedSub;
 
-void MENU_Change(MENU_STATUS newMenu, SETTING_STATUS newSetting, DATA_USER* user);
+void MENU_Change(MENU_STATUS newMenu, BUTTON_STATUS status, SETTING_STATUS newSetting, DATA_USER* user);
 void MENU_DrawScreenLines(void);
 void MENU_DrawScreenText(uint8_t count, char* str[]);
 void MENU_DrawScreenData(uint16_t data1, uint8_t p1, uint16_t data2, uint8_t p2, uint16_t data3, uint8_t p3, uint16_t data4, uint8_t p4);
-void MENU_DrawScreenSettings(SETTING_STRUCT* menu, int8_t num);
-void MENU_DrawScreenDiameter();
+void MENU_DrawScreenSettings(int8_t num);
+void MENU_DrawScreenDiameter(DATA_USER* user, BUTTON_STATUS status);
 void MENU_DrawScreenEtrto();
 void MENU_DrawScreenCadence();
 void MENU_DrawScreenTime();

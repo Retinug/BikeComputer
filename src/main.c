@@ -1,51 +1,44 @@
 #include "main.h"
 
 BUTTON_STATUS buttonPress = BUTTON_NONE;
+BUTTON_STATUS buttonPressSubMenu = BUTTON_NONE;
 uint8_t countTimer = 0;
 bool needUpdate = FALSE;
-uint16_t wheel = 0, pedal = 0;
-volatile int16_t alt = 0;
-volatile int16_t temp = 0;
+//uint16_t wheel = 0, pedal = 0;
 uint32_t zeroPres = 0;
+
+DATA_USER user;
 
 @far @interrupt void IRQ_Handler_EXTI_Button_1()
 {
 	buttonPress = BUTTON_PREV;
-	//if(screenStatus == MENU_STATUS_OFF) screenStatus = MENU_STATUS_MAIN;
-	//screenStatus--;
-	//if(screenStatus < 1) screenStatus = MENU_STATUS_ADDITIONAL2;
-	//needUpdate = TRUE;
 	EXTI_ClearITPendingBit(EXTI_IT_Pin1);
 }
 
 @far @interrupt void IRQ_Handler_EXTI_Button_2()
 {
 	buttonPress = BUTTON_CENTER;
-	//screenStatus = MENU_STATUS_SETTINGS_MAIN;
-	//needUpdate = TRUE;
 	EXTI_ClearITPendingBit(EXTI_IT_Pin2);
 }
 
 @far @interrupt void IRQ_Handler_EXTI_Button_3()
 {
 	buttonPress = BUTTON_NEXT;
-	//if(screenStatus == MENU_STATUS_OFF) screenStatus = MENU_STATUS_MAIN;
-	//screenStatus++;
-	//if(screenStatus > 3) screenStatus = MENU_STATUS_MAIN;
-	//needUpdate = TRUE;
 	EXTI_ClearITPendingBit(EXTI_IT_Pin3);
 }
 
 @far @interrupt void IRQ_Handler_EXTI_Reed_Wheel()
 {
-	wheel++;
+	needUpdate = TRUE;
+	user.wheel++;
 	
 	EXTI_ClearITPendingBit(EXTI_IT_Pin4);
 }
 
 @far @interrupt void IRQ_Handler_EXTI_Reed_Pedal()
 {
-	pedal++;
+	needUpdate = TRUE;
+	user.pedal++;
 	
 	EXTI_ClearITPendingBit(EXTI_IT_Pin7);
 }
@@ -98,13 +91,14 @@ void Init()
 	
 	BMP280_Config(BMP280_Standby_MS1, BMP280_Filter_x2, BMP280_Sampling_x2, BMP280_Sampling_x16, BMP280_Mode_Forced);
 	BMP280_ReadTemp();
+	
 	zeroPres = BMP280_ReadPress();
 	needUpdate = TRUE;
 }
 
 void Update()
 {
-	MENU_Change(screenStatus, settingSelected);
+	MENU_Change(screenStatus, buttonPressSubMenu, settingSelected, &user);
 	SH1106_Update();
 	SH1106_Clear();
 }
@@ -125,9 +119,9 @@ int main()
 	Update();
 	while (1)
 	{
-		//MENU_Change(
 		if(buttonPress)
 		{
+			buttonPressSubMenu = buttonPress;
 			switch(screenStatus)
 			{
 				case MENU_STATUS_OFF:
@@ -135,6 +129,7 @@ int main()
 					break;
 			
 				case MENU_STATUS_MAIN:
+					screenStatusLast = screenStatus;
 					switch(buttonPress)
 					{
 						case BUTTON_PREV:
@@ -153,6 +148,7 @@ int main()
 					break;
 					
 				case MENU_STATUS_ADDITIONAL1:
+					screenStatusLast = screenStatus;
 					switch(buttonPress)
 					{
 						case BUTTON_PREV:
@@ -171,6 +167,7 @@ int main()
 					break;
 					
 				case MENU_STATUS_ADDITIONAL2:
+					screenStatusLast = screenStatus;
 					switch(buttonPress)
 					{
 						case BUTTON_PREV:
@@ -189,15 +186,13 @@ int main()
 					break;
 					
 				case MENU_STATUS_SETTINGS_MAIN:
-					if(settingSelected == SETTING_NONE) settingSelected = SETTING_DIAMETER;
-				
+					//if(settingSelected == SETTING_NONE) settingSelected = SETTING_DIAMETER;
+					TIM4_Cmd(DISABLE);
 					switch(buttonPress)
 					{
 						case BUTTON_PREV:
 							if(settingSelected == SETTING_DIAMETER) settingSelected = SETTING_EXIT;
 							else settingSelected--;
-							break;
-							
 						break;
 						
 						case BUTTON_NEXT:
@@ -209,24 +204,93 @@ int main()
 							switch(settingSelected)
 							{
 								case SETTING_DIAMETER:
+									screenStatus = MENU_STATUS_SETTINGS_DIAMETER;
+									if(selectedSub == -1)
+										selectedSub = 0;
 								break;
+								
+								case SETTING_ETRTO:
+									screenStatus = MENU_STATUS_SETTINGS_ETRTO;
+								break;
+								
 								case SETTING_CADENCE:
+									screenStatus = MENU_STATUS_SETTINGS_CADENCE;
 								break;
+								
 								case SETTING_TIME:
+									screenStatus = MENU_STATUS_SETTINGS_TIME;
 								break;
+								
 								case SETTING_RESET:
+									screenStatus = MENU_STATUS_SETTINGS_RESET;
 								break;
 								case SETTING_EXIT:
+									screenStatus = MENU_STATUS_MAIN;
+									buttonPressSubMenu = BUTTON_NONE;
+									settingSelected = 0;
+									screenStatus = screenStatusLast;
+									TIM4_Cmd(ENABLE);
 								break;
 
 							}
 							
-						break;
 					}
 					
-					break;
+				break;
 					
 				case MENU_STATUS_SETTINGS_DIAMETER:
+				switch(buttonPress)
+					{
+						case BUTTON_PREV:
+						if(selectedSub != 2)
+						{
+							selectedSub--;
+							if(selectedSub < 0)
+								selectedSub = 1;
+						}
+						else
+						{
+							user.diameter--;
+						}
+						break;
+						
+						case BUTTON_NEXT:
+						if(selectedSub != 2)
+						{
+							selectedSub++;
+							if(selectedSub > 1)
+								selectedSub = 0;
+						}
+						else
+						{
+							user.diameter++;
+						}
+						break;
+						
+						case BUTTON_CENTER:
+						/*
+							if(selectedSub == 0)
+								selectedSub == 2;
+							else if(selectedSub == 2)
+								selectedSub == 0;
+							else*/ 
+							switch(selectedSub)
+							{
+								case 0:
+									selectedSub = 2;
+								break;
+								
+								case 1:
+									screenStatus = MENU_STATUS_SETTINGS_MAIN;
+									selectedSub = -1;
+								break;
+								
+								case 2:
+									selectedSub = 0;
+								break;
+							}
+							
+					}
 					break;
 					
 				case MENU_STATUS_SETTINGS_ETRTO:
@@ -243,18 +307,20 @@ int main()
 			}
 			buttonPress = BUTTON_NONE;
 			
-			Update();
-			needUpdate = FALSE;
+			needUpdate = TRUE;
+			//Update();
+			//needUpdate = FALSE;
 		}
 		
 		if(countTimer == COUNT_OVF) 
 		{
 			BMP280_Config(BMP280_Standby_MS1, BMP280_Filter_x2, BMP280_Sampling_x2, BMP280_Sampling_x16, BMP280_Mode_Forced);
 			countTimer = 0;
-			temp = (int16_t)BMP280_ReadTemp();
-			alt = (int16_t)BMP280_ReadAlt(zeroPres);
+			user.temp = (int16_t)BMP280_ReadTemp();
+			user.alt = (int16_t)BMP280_ReadAlt(zeroPres);
 			
-			Update();
+			needUpdate = TRUE;
+			//Update();
 			
 			//temp = BMP280_ReadTemp();
 			//MENU_DrawScreenLines();
@@ -268,6 +334,13 @@ int main()
 			
 			TIM4_Cmd(ENABLE);
 		}
+		
+		if(needUpdate == TRUE)
+		{
+			needUpdate = FALSE;
+			Update();
+		}
+			
 
 	}
 }

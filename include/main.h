@@ -11,15 +11,12 @@
 #include "BMP280.h"
 #include "SH1106.h"
 
+#include "global.h"
 #include "menu.h"
 
 #define BUTTON_PIN1 1
 #define BUTTON_PIN2 2
 #define BUTTON_PIN3 3
-
-#define MASK_BUTTON1 0b00000001
-#define MASK_BUTTON2 0b00000010
-#define MASK_BUTTON3 0b00000100
 
 #define REED_PEDAL_PORT GPIOB
 #define REED_PEDAL_PIN 7
@@ -28,13 +25,11 @@
 
 #define COUNT_OVF 2
 
-typedef enum
-{
-	BUTTON_NONE = 0,
-	BUTTON_NEXT,
-	BUTTON_CENTER,
-	BUTTON_PREV
-} BUTTON_STATUS;
+extern BUTTON_STATUS buttonPress;
+extern BUTTON_STATUS buttonPressSubMenu;
+
+
+//extern struct DATA_USER user;
 
 void Init(void);
 
