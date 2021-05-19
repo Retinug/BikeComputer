@@ -2,7 +2,7 @@
 
 //const char *settingMenu[] = {"Diameter", "Cadence", "Time", "Reset", "Exit"};
 
-const SETTING_STRUCT settingMenu = {7, "Settings", {"Diameter", "Tire", "ETRTO", "Cadence", "Time", "Reset", "Exit"}};
+const SETTING_STRUCT settingMenu = {6, "Settings", {"Diameter",  "ETRTO", "Cadence", "Time", "Reset", "Exit"}};
 
 //const SETTING_STRUCT diameterMenu = {6, "Diameter", {"Diameter", "ETRTO", "Cadence", "Time", "Reset", "Exit"}};
 //const SETTING_STRUCT diameterMenu = {3, "Diameter", {"Standart", "ERTO", "Exit"}};
@@ -56,13 +56,7 @@ void MENU_Change(MENU_STATUS newMenu, BUTTON_STATUS status, SETTING_STATUS newSe
 			break;
 			
 		case MENU_STATUS_SETTINGS_DIAMETER:
-			MENU_DrawScreenDiameter(user, status);
-			//MENU_DrawScreenSettings(&diameterMenu, newSetting);
-			//SH1106_DrawStringAlignBox(0, 20, "Diameter", 128, SH1106_ALIGN_CENTER);
-			//SH1106_DrawStringAlignBox(0, 40, "ETRTO", 128, SH1106_ALIGN_CENTER);
-			//SH1106_DrawString(32, 20, "Diameter");
-			//MENU_DrawBox(30, 18, 80, 38);
-			//MENU_DrawBox(30, 39, 80, 58);
+			MENU_DrawScreenDiameter(user);
 			break;
 			
 		case MENU_STATUS_SETTINGS_ETRTO:
@@ -70,12 +64,14 @@ void MENU_Change(MENU_STATUS newMenu, BUTTON_STATUS status, SETTING_STATUS newSe
 			break;
 			
 		case MENU_STATUS_SETTINGS_CADENCE:
+			MENU_DrawScreenCadence(user);
 			break;
 			
 		case MENU_STATUS_SETTINGS_TIME:
 			break;
 			
 		case MENU_STATUS_SETTINGS_RESET:
+			MENU_DrawScreenReset(user);
 			break;
 	}
 }
@@ -108,6 +104,12 @@ void MENU_DrawScreenData(uint16_t data1, uint8_t p1, uint16_t data2, uint8_t p2,
 	SH1106_DrawNum(64, 48, data4, SH1106_WIDTH / 2, p4, SH1106_ALIGN_CENTER);
 }
 
+void MENU_DrawScreenLabel(char* label)
+{
+	SH1106_DrawStringAlign(0, 0, label, SH1106_WIDTH, SH1106_ALIGN_CENTER);
+	SH1106_DrawLine_Horiz(0, 16, SH1106_WIDTH);
+}
+
 void MENU_DrawScreenSettings(int8_t num)
 {
 	uint8_t i;
@@ -125,7 +127,7 @@ void MENU_DrawScreenSettings(int8_t num)
 		offset--;
 	select = num - offset;
 	
-	SH1106_DrawStringAlign(0, 0, settingMenu.label, SH1106_WIDTH, SH1106_ALIGN_CENTER);
+	MENU_DrawScreenLabel(settingMenu.label);
 	SH1106_DrawChar(2, select * FONT_HEIGHT + FONT_HEIGHT , '>');
 	for(i = 0; i < 3; i++)
 	{
@@ -134,10 +136,8 @@ void MENU_DrawScreenSettings(int8_t num)
 	prevNum = num;
 }
 
-void MENU_DrawScreenDiameter(DATA_USER* user, BUTTON_STATUS status)
+void MENU_DrawSubMenuOne(uint8_t param, char* label, char* paramText)
 {
-	
-	
 	switch(selectedSub)
 	{
 		case 0:
@@ -147,45 +147,29 @@ void MENU_DrawScreenDiameter(DATA_USER* user, BUTTON_STATUS status)
 			SH1106_DrawChar(0, 32 , '>');
 		break;
 		case 2:
-			SH1106_DrawChar(96, 16 , '>');
+			SH1106_DrawChar(84, 16 , '>');
 		break;
 	}
 	
-	SH1106_DrawString(16, 16, "Diameter:");
-	//
-	SH1106_DrawNum(108, 16, user->diameter, FONT_WIDTH * 3, 0, SH1106_ALIGN_LEFT);
-	SH1106_DrawString(16, 32, "Exit:");
-	//if(diameterStatus == -1)
-	//	diameterStatus = 0;
-	//SH1106_DrawStringAlign(16, 16, "Diameter:", 80, SH1106_ALIGN_LEFT);
-	//SH1106_DrawNum(80, 16, user->diameter, 0, SH1106_ALIGN_LEFT);
-	
-	/*switch(status)
-	{
-		case BUTTON_NEXT:
-			if(diameterNum < 2)
-				diameterNum++;
-		break;
-		
-		case BUTTON_CENTER:
-			switch(diameterNum)
-			{
-				case 0:
-					diameterNum = 1;
-				break;
-				
-				case 1: 
-					diameterNum = 0;
-					screenStatus = MENU_STATUS_SETTINGS_MAIN;
-				break;
-		}
-		break;
-		
-		case BUTTON_PREV:
-		break;
-	}
-	
-	switch(diameterNum)
+	MENU_DrawScreenLabel(label);
+	SH1106_DrawString(16, 16, label);
+	SH1106_DrawNum(100, 16, (uint16_t)param, FONT_WIDTH * 3, 0, SH1106_ALIGN_LEFT);
+	SH1106_DrawString(16, 32, "Exit");
+}
+
+void MENU_DrawScreenDiameter(DATA_USER* user)
+{
+	MENU_DrawSubMenuOne(user->diameter, "Diameter", "Inch");
+}
+
+void MENU_DrawScreenCadence(DATA_USER* user)
+{
+	MENU_DrawSubMenuOne(user->cadence, "Cadence", "Freq per minute");
+}
+
+void MENU_DrawScreenReset(DATA_USER* user)
+{
+	switch(selectedSub)
 	{
 		case 0:
 			SH1106_DrawChar(0, 16 , '>');
@@ -193,11 +177,10 @@ void MENU_DrawScreenDiameter(DATA_USER* user, BUTTON_STATUS status)
 		case 1:
 			SH1106_DrawChar(0, 32 , '>');
 		break;
-		case 3:
-			SH1106_DrawChar(0, 48 , '>');
-		break;
 	}
 	
-*/
+	MENU_DrawScreenLabel("Are you sure?");
+	SH1106_DrawString(16, 16, "No");
+	SH1106_DrawString(16, 32, "Yes");
 }
 

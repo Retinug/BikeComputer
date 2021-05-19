@@ -23,13 +23,10 @@
 #define REED_WHEEL_PORT GPIOD
 #define REED_WHEEL_PIN 4
 
-#define COUNT_OVF 2
+#define COUNT_OVF 4
 
 extern BUTTON_STATUS buttonPress;
 extern BUTTON_STATUS buttonPressSubMenu;
-
-
-//extern struct DATA_USER user;
 
 void Init(void);
 

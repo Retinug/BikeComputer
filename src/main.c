@@ -4,9 +4,7 @@ BUTTON_STATUS buttonPress = BUTTON_NONE;
 BUTTON_STATUS buttonPressSubMenu = BUTTON_NONE;
 uint8_t countTimer = 0;
 bool needUpdate = FALSE;
-//uint16_t wheel = 0, pedal = 0;
 uint32_t zeroPres = 0;
-
 DATA_USER user;
 
 @far @interrupt void IRQ_Handler_EXTI_Button_1()
@@ -45,14 +43,9 @@ DATA_USER user;
 
 @far @interrupt void IRQ_Handler_EXTI_Tim4_Ovf()
 {
-	if(countTimer == COUNT_OVF)
+	if(countTimer++ > COUNT_OVF - 1)
 	{
-		needUpdate = TRUE;
 		TIM4_Cmd(DISABLE);
-	}
-	else
-	{
-		countTimer++;
 	}
 	TIM4_ClearITPendingBit(TIM4_IT_Update);
 }
@@ -112,10 +105,16 @@ int main()
 	MENU_DrawScreenLines();
 	SH1106_Update();
 	SH1106_WriteCommand(SH1106_DISPLAYON);
-	
+
+	if(user.diameter < DIAMETERINCH_MIN)
+		user.diameter = DIAMETERINCH_MIN;
+	if(user.cadence < CADENCE_MIN)
+		user.cadence = CADENCE_MIN;
 	enableInterrupts();
 
+
 	screenStatus = MENU_STATUS_MAIN;
+	countTimer = COUNT_OVF;
 	Update();
 	while (1)
 	{
@@ -182,11 +181,11 @@ int main()
 							screenStatus = MENU_STATUS_SETTINGS_MAIN;
 						break;
 					}
-					
 					break;
 					
 				case MENU_STATUS_SETTINGS_MAIN:
 					//if(settingSelected == SETTING_NONE) settingSelected = SETTING_DIAMETER;
+					selectedSub = -1;
 					TIM4_Cmd(DISABLE);
 					switch(buttonPress)
 					{
@@ -201,12 +200,12 @@ int main()
 						break;
 						
 						case BUTTON_CENTER:
+							if(selectedSub == -1)
+										selectedSub = 0;
 							switch(settingSelected)
 							{
 								case SETTING_DIAMETER:
 									screenStatus = MENU_STATUS_SETTINGS_DIAMETER;
-									if(selectedSub == -1)
-										selectedSub = 0;
 								break;
 								
 								case SETTING_ETRTO:
@@ -239,70 +238,153 @@ int main()
 				break;
 					
 				case MENU_STATUS_SETTINGS_DIAMETER:
-				switch(buttonPress)
-					{
-						case BUTTON_PREV:
-						if(selectedSub != 2)
+					switch(buttonPress)
 						{
-							selectedSub--;
-							if(selectedSub < 0)
-								selectedSub = 1;
-						}
-						else
-						{
-							user.diameter--;
-						}
-						break;
-						
-						case BUTTON_NEXT:
-						if(selectedSub != 2)
-						{
-							selectedSub++;
-							if(selectedSub > 1)
-								selectedSub = 0;
-						}
-						else
-						{
-							user.diameter++;
-						}
-						break;
-						
-						case BUTTON_CENTER:
-						/*
-							if(selectedSub == 0)
-								selectedSub == 2;
-							else if(selectedSub == 2)
-								selectedSub == 0;
-							else*/ 
-							switch(selectedSub)
+							case BUTTON_PREV:
+							if(selectedSub != 2)
 							{
-								case 0:
-									selectedSub = 2;
-								break;
 								
-								case 1:
-									screenStatus = MENU_STATUS_SETTINGS_MAIN;
-									selectedSub = -1;
-								break;
-								
-								case 2:
-									selectedSub = 0;
-								break;
+								if(selectedSub == 0)
+									selectedSub = 1;
+								else
+									selectedSub--;
 							}
+							else
+							{
+								user.diameter--;
+								if(user.diameter < DIAMETERINCH_MIN)
+									user.diameter = DIAMETERINCH_MAX;
+							}
+							break;
 							
-					}
+							case BUTTON_NEXT:
+							if(selectedSub != 2)
+							{
+								if(selectedSub == 1)
+									selectedSub = 0;
+								else
+									selectedSub++;
+							}
+							else
+							{
+								user.diameter++;
+								if(user.diameter > DIAMETERINCH_MAX)
+									user.diameter = DIAMETERINCH_MIN;
+							}
+							break;
+							
+							case BUTTON_CENTER:
+								switch(selectedSub)
+								{
+									case 0:
+										selectedSub = 2;
+									break;
+									
+									case 1:
+										screenStatus = MENU_STATUS_SETTINGS_MAIN;
+									break;
+									
+									case 2:
+										selectedSub = 0;
+									break;
+								}
+								
+						}
 					break;
 					
 				case MENU_STATUS_SETTINGS_ETRTO:
 					break;
 					
 				case MENU_STATUS_SETTINGS_CADENCE:
+					switch(buttonPress)
+						{
+							case BUTTON_PREV:
+							if(selectedSub != 2)
+							{
+								
+								if(selectedSub == 0)
+									selectedSub = 1;
+								else
+									selectedSub--;
+							}
+							else
+							{
+								user.cadence--;
+								if(user.cadence < CADENCE_MIN)
+									user.cadence = CADENCE_MAX;
+							}
+							break;
+							
+							case BUTTON_NEXT:
+							if(selectedSub != 2)
+							{
+								if(selectedSub == 1)
+									selectedSub = 0;
+								else
+									selectedSub++;
+							}
+							else
+							{
+								user.cadence++;
+								if(user.cadence > CADENCE_MAX)
+									user.cadence = CADENCE_MIN;
+							}
+							break;
+							
+							case BUTTON_CENTER:
+								switch(selectedSub)
+								{
+									case 0:
+										selectedSub = 2;
+									break;
+									
+									case 1:
+										screenStatus = MENU_STATUS_SETTINGS_MAIN;
+									break;
+									
+									case 2:
+										selectedSub = 0;
+									break;
+								}
+								
+						}
 					break;
 					
 				case MENU_STATUS_SETTINGS_TIME:
 					break;
 					
 				case MENU_STATUS_SETTINGS_RESET:
+				switch(buttonPress)
+						{
+							case BUTTON_PREV:
+								if(selectedSub == 0)
+									selectedSub = 1;
+								else
+									selectedSub--;
+							break;
+							
+							case BUTTON_NEXT:
+								if(selectedSub == 1)
+									selectedSub = 0;
+								else
+									selectedSub++;
+							break;
+							
+							case BUTTON_CENTER:
+								switch(selectedSub)
+								{
+									case 0:
+										screenStatus = MENU_STATUS_SETTINGS_MAIN;
+									break;
+									
+									case 1:
+										user.diameter = DIAMETERINCH_MIN;
+										user.cadence = CADENCE_MIN;
+										screenStatus = MENU_STATUS_SETTINGS_MAIN;
+									break;
+								}
+								
+						}
 					break;
 			}
 			buttonPress = BUTTON_NONE;
@@ -312,7 +394,7 @@ int main()
 			//needUpdate = FALSE;
 		}
 		
-		if(countTimer == COUNT_OVF) 
+		if(countTimer > COUNT_OVF - 1) 
 		{
 			BMP280_Config(BMP280_Standby_MS1, BMP280_Filter_x2, BMP280_Sampling_x2, BMP280_Sampling_x16, BMP280_Mode_Forced);
 			countTimer = 0;
