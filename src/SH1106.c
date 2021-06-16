@@ -197,61 +197,21 @@ void SH1106_DrawLine_Horiz(uint8_t x, uint8_t y, uint8_t len)
 	}
 }
 
-void SH1106_DrawNum(uint8_t x, uint8_t y, int16_t num, uint8_t precision)
+void SH1106_DrawNum(uint8_t x, uint8_t y, int32_t num, uint8_t len, uint8_t precision, SH1106_ALIGN align)
 {
-	uint8_t ch[10] = {' '};
-	int16_t numCount = num;
-	uint8_t i = 0;
-	bool isInt = TRUE;
-	
-	uint8_t len = 0;
-	
-	do
-	{
-		len++;
-		numCount /= 10;
-	}while(numCount);
-	
-	if(precision > 0)
-	{
-		len++;
-		isInt = FALSE;
-	}
-	
-	if(num < 0)
-	{
-		ch[0] = '-';
-		num = -num;
-		if(precision > 0) precision++;
-		len++;
-	}
-	
-	len--;
-	
-	do
-	{
-		if(!isInt && len - i == precision)
-		{
-			ch[len - i] = '.';
-			i++;
-		}
-		else
-		{
-			ch[len - i] = num % 10 + 48;
-			num /= 10;
-			i++;
-		}
-	}while(num);
-	
-	SH1106_DrawString(x, y, ch);
+	uint8_t ch[FONTBUFFER_SIZE] = {' '};
+	itoa(num, ch, precision);
+	reverse(ch);
+	SH1106_DrawStringAlign(x, y, ch, len, align);
 }
+
 
 void SH1106_DrawChar(uint8_t x, uint8_t y, char ch)
 {
 	uint16_t currInd, currBit;
 	uint8_t currX = 0;
 	
-	uint16_t fontIndex = (ch - 32) + 16 * (ch - 32);
+	uint16_t fontIndex = (ch - ' ') + 16 * (ch - ' ');
 	
 	for(currInd = fontIndex + 1; currInd < fontIndex + font[fontIndex] * 2; currInd+=2)
 	{
@@ -281,7 +241,7 @@ void SH1106_DrawString(uint8_t x, uint8_t y, char* str)
 {
 	uint8_t ind, lenX = 0;
 	
-	while(str[++lenX] != '\0');
+	lenX = strlen(str);
 	
 	for(ind = 0; ind < lenX; ind++)
 	{
@@ -300,7 +260,7 @@ void SH1106_DrawStringAlign(uint8_t x, uint8_t y, char* str, uint8_t len, SH1106
 	else
 	{
 		while(str[++size] != '\0');
-		size = size * FONT_WIDTH;
+		size *= FONT_WIDTH;
 		
 		if(align == SH1106_ALIGN_CENTER)
 		{
@@ -313,6 +273,22 @@ void SH1106_DrawStringAlign(uint8_t x, uint8_t y, char* str, uint8_t len, SH1106
 			SH1106_DrawString(offset, y, str);
 		}
 	}
+}
+
+void SH1106_DrawTime(uint8_t x, uint8_t y, uint8_t hour, uint8_t min)
+{
+	if(hour > 9)
+		SH1106_DrawNum(x + 12, y, hour, SH1106_WIDTH / 2, 0, SH1106_ALIGN_LEFT);
+	else
+		SH1106_DrawNum(x + 20, y, hour, SH1106_WIDTH / 2, 0, SH1106_ALIGN_LEFT); 
+	if(min < 10)
+	{
+		SH1106_DrawNum(x + 36, y, 0, SH1106_WIDTH / 2, 0, SH1106_ALIGN_LEFT); 
+		SH1106_DrawNum(x + 44, y, min, SH1106_WIDTH / 2, 0, SH1106_ALIGN_LEFT);
+	}
+	else
+		SH1106_DrawNum(x + 36, y, min, SH1106_WIDTH / 2, 0, SH1106_ALIGN_LEFT);
+	SH1106_DrawChar(x + 28, y, ':');
 }
 
 void SH1106_Clear()

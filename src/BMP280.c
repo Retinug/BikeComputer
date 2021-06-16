@@ -21,7 +21,8 @@ void BMP280_Config(uint8_t BMP280_Standby, uint8_t BMP280_Filter, uint8_t BMP280
 	BMP280_WriteReg(BMP280_REG_CONFIG, (BMP280_Standby << 5) | (BMP280_Filter << 2) | 0);
 	BMP280_WriteReg(BMP280_REG_CONTROL, (BMP280_Sampling_T << 5) | (BMP280_Sampling_P << 2) | BMP280_Mode);
 	
-	BMP280_ReadCalibration();
+	if(dig_T1 == 0)
+		BMP280_ReadCalibration();
 }
 
 int32_t BMP280_ReadTemp()
@@ -33,9 +34,8 @@ int32_t BMP280_ReadTemp()
 	var1 = ((((adc_T / 8) - ((int32_t)dig_T1 << 1))) * ((int32_t)dig_T2)) / 2048;
 	var2 = (((((adc_T / 16) - ((int32_t)dig_T1)) * ((adc_T / 16) - ((int32_t)dig_T1))) / 4096) * ((int32_t)dig_T3)) / 16384;
 	t_fine = var1 + var2;
-	T = (t_fine * 5 + 128) / 256;
 	
-	return T;
+	return (t_fine * 5 + 128) / 256;
 }
 
 int32_t BMP280_ReadPress()
@@ -59,16 +59,15 @@ int32_t BMP280_ReadPress()
 	return P;
 }
 
-int32_t BMP280_ReadAlt(int32_t zeroLevel)
-{
-	float altitude;
-	volatile float zero = zeroLevel / 100.0;
-  float pressure = BMP280_ReadPress();
-  pressure /= 100.0;
 
-  altitude = 44330 * (1.0 - pow(pressure / zero, 0.1903));
-	altitude *= 100;
-  return (uint32_t)(altitude * 100.0);
+
+int32_t BMP280_ReadAlt(float zeroLevel)
+{
+	float altitude = 0;
+  float pressure = BMP280_ReadPress();
+
+  altitude = 44330.0 * (1.0 - pow(pressure / zeroLevel, 0.1903));
+  return (int32_t)altitude;
 }
 
 void BMP280_WriteReg(uint8_t reg, uint8_t value)

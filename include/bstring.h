@@ -6,7 +6,6 @@
 #include <math.h>
 
 void itoa(int32_t num, char* arr, uint8_t prec);
-void ftoa(float num, char* arr, uint8_t prec);
 void reverse(char* s);
 
 #endif

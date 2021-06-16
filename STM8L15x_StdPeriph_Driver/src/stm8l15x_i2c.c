@@ -1074,7 +1074,8 @@ ErrorStatus I2C_CheckEvent(I2C_TypeDef* I2Cx, I2C_Event_TypeDef I2C_Event)
   }
 
   /* Return status */
-  return status;
+
+return status;
 }
 
 /**

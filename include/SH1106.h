@@ -5,6 +5,8 @@
 #include "stm8l15x_i2c.h"
 
 #include "macros.h"
+#include <string.h>
+#include "bstring.h"
 
 #define SH1106_WIDTH 128
 #define SH1106_HEIGHT 64
@@ -51,6 +53,8 @@
 #define FONT_WIDTH 8
 #define FONT_HEIGHT 16
 
+#define FONTBUFFER_SIZE 10
+
 typedef enum
 {
 	SH1106_ALIGN_LEFT = (uint8_t)0x00,
@@ -71,13 +75,14 @@ void SH1106_UpdatePage(uint8_t num);
 void SH1106_SetPixel(uint8_t x, uint8_t y);
 void SH1106_DrawLine_Vert(uint8_t x, uint8_t y, uint8_t len);
 void SH1106_DrawLine_Horiz(uint8_t x, uint8_t y, uint8_t len);
-void SH1106_DrawNum(uint8_t x, uint8_t y, int16_t num, uint8_t precision);
+void SH1106_DrawNum(uint8_t x, uint8_t y, int32_t num, uint8_t len, uint8_t precision, SH1106_ALIGN align);
 void SH1106_DrawChar(uint8_t x, uint8_t y, char ch);
 void SH1106_DrawString(uint8_t x, uint8_t y, char* str);
 void SH1106_DrawStringAlign(uint8_t x, uint8_t y, char* str, uint8_t len, SH1106_ALIGN align);
+void SH1106_DrawStringAlignBox(uint8_t x, uint8_t y, char* str, uint8_t len, SH1106_ALIGN align);
+void SH1106_DrawTime(uint8_t x, uint8_t y, uint8_t hour, uint8_t min);
 void SH1106_Clear(void);
 
-void SH1106_Write(uint8_t command, uint8_t data);
 void SH1106_WriteCommand(uint8_t command);
 
 #endif
